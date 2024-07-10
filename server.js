@@ -11,7 +11,7 @@ const butterfactoryinfoRoute = require('./routes/butterfactoryinfoRoute')
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log('Connected to MongoDB');
