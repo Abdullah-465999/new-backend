@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
 
 app.use(cors({
   credentials: true,
-  origin: 'http://45.55.97.152:4500/'
+  origin: 'http://45.55.97.152:4500'
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
