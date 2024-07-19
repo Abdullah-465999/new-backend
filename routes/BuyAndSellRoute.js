@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const BuyAndSellModel = require('../models/BuyAndSell')
+const ChannelNameModel = require('../models/ChannelNames')
 
 router.get('/', async (req, res) => {
     try {
@@ -21,6 +22,9 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ error });
     }
 })
+
+
+
 
 router.post('/manydata', async (req, res) => {
     try {
@@ -58,5 +62,40 @@ router.delete('/dlt/:id', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
+router.get('/channelname', async (req, res) => {
+    try {
+        const channelNames = await ChannelNameModel.find({});
+        res.status(200).json(channelNames);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+})
+
+router.put('/channel/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const channel = await ChannelNameModel.findByIdAndUpdate(id, req.body, { new: true });
+        const channelNames = await ChannelNameModel.find({});
+        console.log(channelNames);
+        res.status(200).json(channelNames);
+
+    } catch (error) {
+
+        res.status(500).json({ error: error });
+    }
+})
+
+router.post('/channel', async (req, res) => {
+    try {
+    const newChannel = req.body     
+    const newChannelName = await ChannelNameModel.create(newChannel)  
+    const allNames = await ChannelNameModel.find({});
+    res.status(200).json(allNames);
+    } catch (error) {
+        res.status(500).json({error: error})
+    }
+})
 
 module.exports = router

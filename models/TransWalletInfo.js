@@ -9,7 +9,10 @@
         ParseTransactionURL: String,
         ChannelName: String,
         TotalNoOfSells: Number,
-    }, { collection: 'TransWalletInfo' });
+        SupertrendSelling: Boolean,
+        PriceTrackingFrequency: Number,
+        IsJitoTrans: Boolean
+    }, { collection: 'TransWalletInfo', versionKey: false });
 
     const TransWalletInfo = mongoose.model('TransWalletInfo', transWalletInfoSchema);
 

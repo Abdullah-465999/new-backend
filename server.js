@@ -11,7 +11,7 @@ const butterfactoryinfoRoute = require('./routes/butterfactoryinfoRoute')
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 7000;
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log('Connected to MongoDB');
@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
 
 app.use(cors({
   credentials: true,
-  origin: 'http://http://45.55.97.152:6000'
+  origin: 'http://45.55.97.152:4500/'
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,5 +42,5 @@ app.get('/',(req,res) => {
 
 app.listen(PORT, () => {
 
-  console.log(`Server is running on port ${5000}`);
+  console.log(`Server is running on port ${7000}`);
 });
