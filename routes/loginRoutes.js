@@ -1,6 +1,5 @@
 const express = require('express');
-const Users = require('../models/User');
-const bcrypt = require('bcryptjs');
+const sql = require('mssql');
 const jwt = require('jsonwebtoken');
 const AuthController = require('../controllers/AuthController');
 const router = express.Router();
@@ -11,32 +10,37 @@ const jwt_secret_key = process.env.JWT_KEY
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await Users.findOne({ email });
-
+    const result = await sql.query`SELECT * FROM Users WHERE email = ${email}`;
+    const user = result.recordset[0];
     if (!user) {
       return res.status(400).send('User not found');
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    
 
-    if (!isMatch) {
+    if (password !== user.password) {
       return res.status(400).send('Incorrect password!!');
     }
 
-    const token = jwt.sign({ id: user._id }, jwt_secret_key, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user.ID }, jwt_secret_key, { expiresIn: '1d' });
 
-    res.status(200).json({ token, user: { email: user.email, username: user.username } });
+    res.status(200).json({ token, user: { email: user.email, username: user.username, userType: user.userType } });
 
   } catch (error) {
-    res.status(500).json({ error })
+    res.status(500).json({ error });
   }
 });
 
-router.get('/auth', AuthController,async (req, res) => {
-
+router.get('/auth', AuthController, async (req, res) => {
   res.status(200).json({ user: req.user });
-}
-)
+});
+
+
+
+
+
+
+
 
 
 module.exports = router;

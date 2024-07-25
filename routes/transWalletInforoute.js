@@ -1,52 +1,116 @@
 const express = require('express')
 const router = express.Router()
-const transWalletInfo = require('../models/TransWalletInfo');
+const sql = require('mssql')
 
 
 router.get('/', async (req, res) => {
     try {
-        const walletInfo = await transWalletInfo.find({})
-        res.status(200).json(walletInfo)
+        const walletInfo = await sql.query`select * from TransWalletInfo`;
+        res.status(200).json(walletInfo.recordset)
     } catch (error) {
         res.status(500).json({ error })
     }
 })
+
 
 router.post('/', async (req, res) => {
-    const transaction = req.body
-    console.log(req.body);
-    try {
-        const newTrans = await  transWalletInfo.create(transaction);
-        res.status(200).json(newTrans);
+    const transaction = req.body;
 
+    // Define the query
+    const query = `
+        INSERT INTO TransWalletInfo (
+            WalletPrivateAddress, TransAddress, TransAmount, SolanaNetwork, 
+            SlipagePercentage, ParseTransactionURL, ChannelName, 
+            TotalNoOfSells, FeePayerPrivateAddress, PriceTrackingFrequency, 
+            SupertrendSelling, IsJitoTrans
+        ) VALUES (
+            @WalletPrivateAddress, @TransAddress, @TransAmount, @SolanaNetwork, 
+            @SlipagePercentage, @ParseTransactionURL, @ChannelName, 
+            @TotalNoOfSells, @FeePayerPrivateAddress, @PriceTrackingFrequency, 
+            @SupertrendSelling, @IsJitoTrans
+        ); SELECT SCOPE_IDENTITY() AS ID`;
+
+    try {
+        // Create a request object
+        const request = new sql.Request();
+
+        // Add parameters to the request
+        request.input('WalletPrivateAddress', sql.VarChar, transaction.WalletPrivateAddress);
+        request.input('TransAddress', sql.VarChar, transaction.TransAddress);
+        request.input('TransAmount', sql.Decimal, parseFloat(transaction.TransAmount));
+        request.input('SolanaNetwork', sql.VarChar, transaction.SolanaNetwork);
+        request.input('SlipagePercentage', sql.TinyInt, parseInt(transaction.SlipagePercentage));
+        request.input('ParseTransactionURL', sql.VarChar, transaction.ParseTransactionURL);
+        request.input('ChannelName', sql.VarChar, transaction.ChannelName);
+        request.input('TotalNoOfSells', sql.TinyInt, parseInt(transaction.TotalNoOfSells));
+        request.input('FeePayerPrivateAddress', sql.VarChar, transaction.FeePayerPrivateAddress);
+        request.input('PriceTrackingFrequency', sql.TinyInt, parseInt(transaction.PriceTrackingFrequency));
+        request.input('SupertrendSelling', sql.Bit, transaction.SupertrendSelling);
+        request.input('IsJitoTrans', sql.Bit, transaction.IsJitoTrans);
+
+        // Execute the query
+        const result = await request.query(query);
+        const walletInfo = await sql.query`select * from TransWalletInfo where ID=${result.recordset[0].ID}`;
+        res.status(200).json({ ...walletInfo.recordset[0] });
     } catch (error) {
-        res.status(500).json({ error })
     }
-    
-})
+});
+
+
+
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const newData = req.body;
-    console.log(newData);
-    try {
-        const updatedTransaction = await transWalletInfo.findByIdAndUpdate(id, newData, { new: true });
-        res.status(200).json(updatedTransaction);
-        
-    } catch (error) {
-        console.error('Error updating transaction:', error);
-        res.status(500).json({error});
-    }
-})
 
-router.post('/manydata', async (req, res) => {
+    // Define the query
+    const query = `
+        UPDATE TransWalletInfo
+        SET 
+            WalletPrivateAddress = @WalletPrivateAddress, 
+            TransAddress = @TransAddress, 
+            TransAmount = @TransAmount, 
+            SolanaNetwork = @SolanaNetwork, 
+            SlipagePercentage = @SlipagePercentage, 
+            ParseTransactionURL = @ParseTransactionURL, 
+            ChannelName = @ChannelName, 
+            TotalNoOfSells = @TotalNoOfSells, 
+            FeePayerPrivateAddress = @FeePayerPrivateAddress, 
+            PriceTrackingFrequency = @PriceTrackingFrequency, 
+            SupertrendSelling = @SupertrendSelling, 
+            IsJitoTrans = @IsJitoTrans
+        WHERE ID = @ID;
+        
+        SELECT * FROM TransWalletInfo WHERE ID = @ID
+    `;
+
     try {
-        const dataArray = req.body; 
-        const insertedData = await transWalletInfo.insertMany(dataArray);
-        res.status(200).json(insertedData);
+        // Create a request object
+        const request = new sql.Request();
+
+        // Add parameters to the request
+        request.input('WalletPrivateAddress', sql.NVarChar, newData.WalletPrivateAddress || null);
+        request.input('TransAddress', sql.NVarChar, newData.TransAddress || null);
+        request.input('TransAmount', sql.Decimal, parseFloat(newData.TransAmount) || 0.0);
+        request.input('SolanaNetwork', sql.NVarChar, newData.SolanaNetwork || null);
+        request.input('SlipagePercentage', sql.TinyInt, parseInt(newData.SlipagePercentage) || 0);
+        request.input('ParseTransactionURL', sql.NVarChar, newData.ParseTransactionURL || null);
+        request.input('ChannelName', sql.NVarChar, newData.ChannelName || null);
+        request.input('TotalNoOfSells', sql.TinyInt, parseInt(newData.TotalNoOfSells) || 0);
+        request.input('FeePayerPrivateAddress', sql.NVarChar, newData.FeePayerPrivateAddress || null);
+        request.input('PriceTrackingFrequency', sql.TinyInt, parseInt(newData.PriceTrackingFrequency) || 0);
+        request.input('SupertrendSelling', sql.Bit, newData.SupertrendSelling ? 1 : 0);
+        request.input('IsJitoTrans', sql.Bit, newData.IsJitoTrans ? 1 : 0);
+        request.input('ID', sql.Int, parseInt(id));
+
+        // Execute the query
+        const result = await request.query(query);
+
+        // Send the updated record as the response
+        res.status(200).json(result.recordset[0]);
     } catch (error) {
-        console.error('Error inserting data:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error });
     }
 });
+
 
 module.exports = router

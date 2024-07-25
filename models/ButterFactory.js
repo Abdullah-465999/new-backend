@@ -2,9 +2,65 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const butterfactoryinfoSchema = new Schema({
+    Price: {
+        type: Number,
+        default: null
+    },
+    Liquidity: {
+        type: Number,
+        default: null
+    },
+    Locked: {
+        type: Number,
+        default: null
+    },
+    Total_Volume: {
+        type: Number,
+        default: null
+    },
+    Buy_Volume: {
+        type: Number,
+        default: null
+    },
+    Sell_Volume: {
+        type: Number,
+        default: null
+    },
+    Net_Volume: {
+        type: Number,
+        default: null
+    },
+    Traders_Count: {
+        type: Number,
+        default: null
+    },
+    Trades_Count: {
+        type: Number,
+        default: null
+    },
+    Buy_Count: {
+        type: Number,
+        default: null
+    },
     Top_10_Holders: {
         type: String,
         required: true
+    },
+    Marketcap: {
+        type: Number,
+        default: null
+    },
+    Circulating: {
+        type: Number,
+        default: null
+    },
+    Mintable: {
+        type: Number,
+        default: null
+    },
+    Mutable: {
+        type: Number,
+        default: null
     },
     Contract_Address: {
         type: String,
@@ -42,6 +98,22 @@ const butterfactoryinfoSchema = new Schema({
     Lp_tokens: {
         type: String,
         required: true
+    },
+    Top_hodlers: {
+        type: Number,
+        default: null
+    },
+    Volume_24h: {
+        type: Number,
+        default: null
+    },
+    Transactions_24h: {
+        type: Number,
+        default: null
+    },
+    Airdrops: {
+        type: Number,
+        default: null
     },
     Mint: {
         type: String,
