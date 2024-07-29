@@ -1,5 +1,4 @@
 const express = require('express');
-// const mongoose = require('mongoose');
 const sql = require('mssql');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
@@ -12,17 +11,16 @@ const butterfactoryinfoRoute = require('./routes/butterfactoryinfoRoute')
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 7000;
-
+const PORT = process.env.PORT || 1200;
 
 
 const config = {
-  user: process.env.USER, // Database username
+  user: process.env.NAME, // Database username
   password: process.env.PSWRD, // Database password
   server: process.env.SERVER, // SQL Server instance name
   database: process.env.DATABASE, // Database name
   options: {
-    encrypt: true, // Set to true if you need encryption
+    encrypt: false, // Set to true if you need encryption
     trustServerCertificate: true // Set to true if using self-signed certificates
   }
 };
@@ -37,17 +35,9 @@ sql.connect(config).then(pool => {
   process.exit();
 });
 
-
-// mongoose.connect(process.env.MONGO_URI).then((res) => {
-//   console.log('Connected to MongoDB');
-// }).catch(err => {
-//   console.error('Connection error', err);
-//   process.exit();
-// });
-
 app.use(cors({
   credentials: true,
-  origin: 'http://45.55.97.152:1000'
+  origin: 'http://45.55.97.152:1880'
 }));
 
 app.use(express.json());
@@ -66,5 +56,5 @@ app.use('/buyandsell', sellAndBuy)
 
 app.listen(PORT, () => {
 
-  console.log(`Server is running on port ${7000}`);
+  console.log(`Server is running on port ${1200}`);
 });
